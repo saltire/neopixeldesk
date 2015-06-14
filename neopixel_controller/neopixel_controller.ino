@@ -16,8 +16,9 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ80
 void setup() {
     strip.begin();
     strip.show(); // Initialize all pixels to 'off'
-    setColor(0, 255, 0);
+    //setColor(0, 255, 0);
     colorFade(255, 0, 0, 1000, 20);
+    //colorMarquee(255, 0, 0, 3, 7, 20, false);
     Serial.begin(9600);
 }
 
@@ -39,17 +40,17 @@ void setColor(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 // Fill the dots one after the other with a color
-void colorWipe(uint32_t c, uint8_t wait) {
-    for (uint16_t i = 0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, c);
+void colorWipe(uint8_t r, uint8_t g, uint8_t b, uint16_t step) {
+    for (uint16_t p = 0; p < strip.numPixels(); p++) {
+        strip.setPixelColor(p, r, g, b);
         strip.show();
-        delay(wait);
+        delay(step);
     }
 }
 
-void colorFade(uint8_t cr, uint8_t cg, uint8_t cb, uint16_t duration, uint16_t step) {
+void colorFade(uint8_t r, uint8_t g, uint8_t b, uint16_t duration, uint16_t step) {
     if (duration == 0) {
-        setColor(cr, cg, cb);
+        setColor(r, g, b);
         return;
     }
     if (step > duration) step = duration;
@@ -62,14 +63,33 @@ void colorFade(uint8_t cr, uint8_t cg, uint8_t cb, uint16_t duration, uint16_t s
             uint8_t pg = pixel[0];
             uint8_t pb = pixel[2];
 
-            uint8_t r = (cr > pr) ? (pr + (cr - pr) / s) : (pr - (pr - cr) / s);
-            uint8_t g = (cg > pg) ? (pg + (cg - pg) / s) : (pg - (pg - cg) / s);
-            uint8_t b = (cb > pb) ? (pb + (cb - pb) / s) : (pb - (pb - cb) / s);
+            uint8_t sr = (r > pr) ? (pr + (r - pr) / s) : (pr - (pr - r) / s);
+            uint8_t sg = (g > pg) ? (pg + (g - pg) / s) : (pg - (pg - g) / s);
+            uint8_t sb = (b > pb) ? (pb + (b - pb) / s) : (pb - (pb - b) / s);
 
-            strip.setPixelColor(p, r, g, b);
+            strip.setPixelColor(p, sr, sg, sb);
         }
         strip.show();
         delay(step);
+    }
+}
+
+void colorMarquee(uint8_t r, uint8_t g, uint8_t b, uint16_t light, uint16_t dark, uint16_t step, bool clockwise) {
+    uint16_t length = light + dark;
+    while (1) {
+        for (uint16_t s = 0; s < length; s++) {
+            uint16_t offset = clockwise ? s : (length - s - 1);
+            for (uint16_t p = 0; p < NUM_PIXELS; p++) {
+                if ((p + offset) % length < light) {
+                    strip.setPixelColor(p, r, g, b);
+                }
+                else {
+                    strip.setPixelColor(p, 0, 0, 0);
+                }
+            }
+            strip.show();
+            delay(step);
+        }
     }
 }
 

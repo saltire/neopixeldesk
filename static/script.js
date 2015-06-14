@@ -12,8 +12,9 @@ var Slider = React.createClass({
     render: function () {
         return (
             <div className='row'>
-                <div className='col-sm-1'>{this.props.label}</div>
-                <div className='col-sm-11'>
+                <div className='col-sm-1 col-xs-6'>{this.props.label}</div>
+                <div className='col-sm-1 col-xs-6'>{this.props.value}</div>
+                <div className='col-sm-10 col-xs-12'>
                     <input type='range' min='0' max='255' name={this.props.id} value={this.props.value} ref='colorValue' onChange={this.updateColor} />
                 </div>
             </div>
