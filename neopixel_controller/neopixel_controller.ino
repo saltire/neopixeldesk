@@ -5,11 +5,10 @@
 #define NUM_PIXELS 150
 
 // modes
-#define MODE_IDLE 0
+#define MODE_FADE 0
 #define MODE_WIPE 1
-#define MODE_FADE 2
-#define MODE_MARQUEE 3
-#define MODE_RAINBOW 4
+#define MODE_MARQUEE 2
+#define MODE_RAINBOW 3
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -22,83 +21,73 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ80
 
 void setup() {
     strip.begin();
-    strip.show(); // Initialize all pixels to 'off'
-
-    uint8_t color[3] = {255, 0, 0};
-    colorFade(color, 1000, 20);
+    strip.show(); // Initialize all pixels to off.
 
     Serial.begin(9600);
+
+    colorFade(strip.Color(255, 0, 0), 1000, 20);
+    // colorWipe(strip.Color(0, 255, 0), 1000, false);
+    // colorMarquee(strip.Color(0, 0, 255), 5, 2, 1000, false);
+    // rainbowCycle(5000, 500, false);
 }
 
 void loop() {
     if (Serial.available()) {
-        // uint8_t mode = Serial.read();
-        uint8_t mode = MODE_FADE;
-        uint8_t color1[3];
+        uint8_t mode = Serial.read();
 
-        if (mode == MODE_WIPE) {
-            readColor(color1);
-            colorWipe(color1, 1000);
+        if (mode == MODE_FADE) {
+            colorFade(readColor(), 1000, 20);
         }
-        else if (mode == MODE_FADE) {
-            readColor(color1);
-            colorFade(color1, 1000, 20);
+        else if (mode == MODE_WIPE) {
+            colorWipe(readColor(), 1000, true);
         }
         else if (mode == MODE_MARQUEE) {
-            readColor(color1);
-            colorMarquee(color1, 5, 2, 20, true);
+            colorMarquee(readColor(), 5, 2, 1000, true);
+        }
+        else if (mode == MODE_RAINBOW) {
+            rainbowCycle(5000, 500, true);
         }
     }
 }
 
-void readColor(uint8_t *color) {
-    while (Serial.available() < 3) {}
-    color[0] = Serial.read();
-    color[1] = Serial.read();
-    color[2] = Serial.read();
+uint8_t readInt8() {
+    while (Serial.available() < 1) {}
+    return Serial.read();
 }
 
-// Fill all the dots with a color simultaneously
-void setColor(uint8_t *color) {
-    uint8_t r = color[0];
-    uint8_t g = color[1];
-    uint8_t b = color[2];
+// Read a big-endian 16-bit int from serial.
+uint16_t readInt16() {
+    while (Serial.available() < 2) {}
+    return (uint16_t)Serial.read() << 8 & Serial.read();
+}
 
+// Read a 32-bit RGB color from serial.
+uint32_t readColor() {
+    while (Serial.available() < 3) {}
+    uint8_t r = Serial.read();
+    uint8_t g = Serial.read();
+    uint8_t b = Serial.read();
+    return (uint32_t)r << 16 | (uint32_t)g << 8 | b;
+}
+
+// Fill all the dots with a color simultaneously.
+void setColor(uint32_t color) {
     for (uint16_t p = 0; p < NUM_PIXELS; p++) {
-        strip.setPixelColor(p, r, g, b);
+        strip.setPixelColor(p, color);
     }
     strip.show();
 }
 
-// Fill the dots one after the other with a color
-void colorWipe(uint8_t *color, uint16_t duration) {
-    uint8_t r = color[0];
-    uint8_t g = color[1];
-    uint8_t b = color[2];
-    uint16_t stepDuration = duration / NUM_PIXELS;
-
-    for (uint16_t p = 0; p < NUM_PIXELS; p++) {
-        strip.setPixelColor(p, r, g, b);
-        strip.show();
-        delay(stepDuration);
-        if (Serial.available()) return;
-    }
-}
-
-// Fade all pixels smoothly from their current color to a target color
-void colorFade(uint8_t *color, uint16_t duration, uint16_t stepDuration) {
-    if (duration == 0) {
-        setColor(color1);
-        return;
-    }
-    if (stepDuration > duration) stepDuration = duration;
-
-    uint8_t r = color[0];
-    uint8_t g = color[1];
-    uint8_t b = color[2];
+// Fade all pixels smoothly from their current color to a target color.
+void colorFade(uint32_t color, uint16_t duration, uint16_t stepDuration) {
+    uint8_t r = (uint8_t)(color >> 16);
+    uint8_t g = (uint8_t)(color >> 8);
+    uint8_t b = (uint8_t)(color);
     uint8_t *pixels = strip.getPixels();
 
-    for (uint16_t s = duration / stepDuration; s > 0; s--) {
+    uint16_t steps = (stepDuration && (duration > stepDuration)) ? duration / stepDuration : 1;
+
+    for (uint16_t s = steps; s > 0; s--) {
         for (uint16_t p = 0; p < NUM_PIXELS; p++) {
             uint8_t *pixel = &pixels[p * 3];
             uint8_t pr = pixel[1];
@@ -117,20 +106,35 @@ void colorFade(uint8_t *color, uint16_t duration, uint16_t stepDuration) {
     }
 }
 
-// Create a scrolling marquee of groups of alternating on and off pixels of a single color
-void colorMarquee(uint8_t *color, uint16_t lightLength, uint16_t darkLength,
-        uint16_t stepDuration, bool clockwise) {
-    uint8_t r = color[0];
-    uint8_t g = color[1];
-    uint8_t b = color[2];
+// Fill the dots one after the other with a color.
+void colorWipe(uint32_t color, uint16_t duration, bool reverse) {
+    uint16_t stepDuration = duration / NUM_PIXELS;
+
+    uint8_t r = (uint8_t)(color >> 16);
+    uint8_t g = (uint8_t)(color >> 8);
+    uint8_t b = (uint8_t)(color);
+
+    for (uint16_t p = 0; p < NUM_PIXELS; p++) {
+        strip.setPixelColor(reverse ? NUM_PIXELS - p : p, color);
+        strip.show();
+        delay(stepDuration);
+        if (Serial.available()) return;
+    }
+}
+
+// Create a scrolling marquee of groups of alternating on and off pixels of a single color.
+void colorMarquee(uint32_t color, uint16_t lightLength, uint16_t darkLength,
+        uint16_t duration, bool reverse) {
+    if (lightLength == 0) return;
     uint16_t length = lightLength + darkLength;
+    uint16_t stepDuration = duration / length;
 
     while (1) {
         for (uint16_t s = 0; s < length; s++) {
-            uint16_t offset = clockwise ? s : (length - s - 1);
+            uint16_t offset = reverse ? s : (length - s - 1);
             for (uint16_t p = 0; p < NUM_PIXELS; p++) {
                 if ((p + offset) % length < lightLength) {
-                    strip.setPixelColor(p, r, g, b);
+                    strip.setPixelColor(p, color);
                 }
                 else {
                     strip.setPixelColor(p, 0, 0, 0);
@@ -143,19 +147,40 @@ void colorMarquee(uint8_t *color, uint16_t lightLength, uint16_t darkLength,
     }
 }
 
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-uint32_t Wheel(byte WheelPos) {
-    WheelPos = 255 - WheelPos;
-    if (WheelPos < 85) {
-        return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-    }
-    else if (WheelPos < 170) {
-        WheelPos -= 85;
-        return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-    }
-    else {
-        WheelPos -= 170;
-        return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+// Create a color-cycling rainbow covering the full spectrum over a certain pixel length.
+void rainbowCycle(uint16_t duration, uint16_t length, bool reverse) {
+    uint16_t stepDuration = duration / 256;
+
+    while (1) {
+        for (uint8_t c = 0; c < 256; c++) {
+            if (!length) {
+                setColor(wheel(c));
+            }
+            else {
+                for (uint16_t p = 0; p < NUM_PIXELS; p++) {
+                    strip.setPixelColor(p, wheel(((p * 256 / length) + (reverse ? c : -c)) & 255));
+                }
+                strip.show();
+            }
+            delay(stepDuration);
+            if (Serial.available()) return;
+        }
     }
 }
+
+// Input a hue value 0 to 255 to get a 32-bit color value.
+uint32_t wheel(uint8_t wheelPos) {
+    wheelPos = 255 - wheelPos;
+    if (wheelPos < 85) {
+        return strip.Color(255 - wheelPos * 3, 0, wheelPos * 3);
+    }
+    else if (wheelPos < 170) {
+        wheelPos -= 85;
+        return strip.Color(0, wheelPos * 3, 255 - wheelPos * 3);
+    }
+    else {
+        wheelPos -= 170;
+        return strip.Color(wheelPos * 3, 255 - wheelPos * 3, 0);
+    }
+}
+

@@ -4,6 +4,7 @@ function hexColor(color) {
     return '#' + '000000'.slice(str.length) + str;
 }
 
+
 var Slider = React.createClass({
     updateColor: function () {
         this.props.updateColor(this.props.id, this.refs.colorValue.getDOMNode().value);
@@ -21,6 +22,7 @@ var Slider = React.createClass({
         );
     }
 });
+
 
 var ColorForm = React.createClass({
     getInitialState: function () {
@@ -40,23 +42,41 @@ var ColorForm = React.createClass({
         });
     },
 
-    sendColor: function () {
-        $.post(this.props.action, this.state.colorValues);
+    send: function (e) {
+        e.preventDefault();
+        var form = e.target;
+        $.post(this.props.action, {
+            mode: parseInt(form.elements.mode.value),
+            r: this.state.colorValues.r,
+            g: this.state.colorValues.g,
+            b: this.state.colorValues.b
+        });
     },
 
     render: function () {
         var _ = this;
         return (
-            <div>
+            <form onSubmit={this.send}>
+                <div className='row'>
+                    {this.props.modes.map(function (mode, i) {
+                        return (
+                            <div className='col-sm-3'>
+                                <input type='radio' name='mode' value={i} id={'mode' + i} ref='modeValue' />
+                                <label for={'mode' + i}>{mode}</label>
+                            </div>
+                        );
+                    })}
+                </div>
                 {this.props.colors.map(function (color) {
                     return <Slider key={color.id} id={color.id} label={color.label} value={_.state.colorValues[color.id]} updateColor={_.updateColor} />;
                 })}
                 <div style={{background: hexColor(this.state.colorValues)}}>&nbsp;</div>
-                <button onClick={this.sendColor}>Send</button>
-            </div>
+                <button>Send</button>
+            </form>
         );
     }
 });
+
 
 var colors = [
     {id: 'r', label: 'Red'},
@@ -64,4 +84,11 @@ var colors = [
     {id: 'b', label: 'Blue'}
 ];
 
-React.render(<ColorForm colors={colors} action='/color' />, document.getElementById('form'));
+var modes = [
+    'Fade',
+    'Wipe',
+    'Marquee',
+    'Rainbow'
+];
+
+React.render(<ColorForm colors={colors} modes={modes} action='/color' />, document.getElementById('form'));

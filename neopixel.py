@@ -16,9 +16,6 @@ class NeoPixel:
         self.serial.write(bytes(ints))
         print('Sent bytes:', ' '.join([hex(i)[2:].zfill(2) for i in ints]))
 
-    def set_rgb(self, r, g, b):
-        self.write(r, g, b)
-
 
 if __name__ == '__main__':
     neopixel = NeoPixel()

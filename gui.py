@@ -16,8 +16,14 @@ def index():
 
 @app.route('/color', methods=['POST'])
 def set_color():
-    r, g, b = (int(val) for val in (request.form['r'], request.form['g'], request.form['b']))
-    neo.set_rgb(r, g, b)
+    mode = int(request.form['mode'] or 0)
+
+    if mode in [0, 1, 2]:
+        r, g, b = (int(val) for val in (request.form['r'], request.form['g'], request.form['b']))
+        neo.write(mode, r, g, b)
+    else:
+        neo.write(mode)
+
     return jsonify({'result': 'success'})
 
 
