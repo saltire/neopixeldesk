@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 from neopixel import NeoPixel
@@ -16,12 +18,15 @@ def index():
 
 @app.route('/color', methods=['POST'])
 def set_color():
-    mode = int(request.form['mode'] or 0)
+    mode = ['Fade', 'Wipe', 'Marquee', 'Rainbow'].index(request.form['mode'])
+    data = json.loads(request.form['data'])
 
-    if mode in [0, 1, 2]:
-        r, g, b = (int(val) for val in (request.form['r'], request.form['g'], request.form['b']))
-        neo.write(mode, r, g, b)
-    else:
+    print(mode, data)
+
+    if request.form['mode'] in ['Fade', 'Wipe', 'Marquee']:
+        neo.write(mode, data['color1']['r'], data['color1']['g'], data['color1']['b'])
+
+    elif request.form['mode'] == 'Rainbow':
         neo.write(mode)
 
     return jsonify({'result': 'success'})
