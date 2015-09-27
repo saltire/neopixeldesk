@@ -36,16 +36,28 @@ void loop() {
         uint8_t mode = Serial.read();
 
         if (mode == MODE_FADE) {
-            colorFade(readColor(), 1000, 20);
+            uint32_t fadeColor = readColor();
+            uint16_t fadeDuration = readInt16();
+            colorFade(fadeColor, fadeDuration, 20);
         }
         else if (mode == MODE_WIPE) {
-            colorWipe(readColor(), 1000, true);
+            uint32_t wipeColor = readColor();
+            uint16_t wipeDuration = readInt16();
+            colorWipe(wipeColor, wipeDuration, true);
         }
         else if (mode == MODE_MARQUEE) {
-            colorMarquee(readColor(), 5, 2, 1000, true);
+            uint32_t marqueeColor1 = readColor();
+            uint32_t marqueeColor2 = readColor();
+            uint8_t marqueeLength1 = readInt16();
+            uint8_t marqueeLength2 = readInt16();
+            uint16_t marqueeDuration = readInt16();
+            colorMarquee(marqueeColor1, marqueeColor2, marqueeLength1, marqueeLength2,
+                marqueeDuration, true);
         }
         else if (mode == MODE_RAINBOW) {
-            rainbowCycle(5000, 500, true);
+            uint16_t rainbowDuration = readInt16();
+            uint16_t rainbowLength = readInt16();
+            rainbowCycle(rainbowDuration, rainbowLength, true);
         }
     }
 }
@@ -58,7 +70,7 @@ uint8_t readInt8() {
 // Read a big-endian 16-bit int from serial.
 uint16_t readInt16() {
     while (Serial.available() < 2) {}
-    return (uint16_t)Serial.read() << 8 & Serial.read();
+    return (uint16_t)Serial.read() << 8 | Serial.read();
 }
 
 // Read a 32-bit RGB color from serial.
@@ -123,8 +135,8 @@ void colorWipe(uint32_t color, uint16_t duration, bool reverse) {
 }
 
 // Create a scrolling marquee of groups of alternating on and off pixels of a single color.
-void colorMarquee(uint32_t color, uint16_t lightLength, uint16_t darkLength,
-        uint16_t duration, bool reverse) {
+void colorMarquee(uint32_t color1, uint32_t color2, uint16_t lightLength,
+    uint16_t darkLength, uint16_t duration, bool reverse) {
     if (lightLength == 0) return;
     uint16_t length = lightLength + darkLength;
     uint16_t stepDuration = duration / length;
@@ -134,10 +146,10 @@ void colorMarquee(uint32_t color, uint16_t lightLength, uint16_t darkLength,
             uint16_t offset = reverse ? s : (length - s - 1);
             for (uint16_t p = 0; p < NUM_PIXELS; p++) {
                 if ((p + offset) % length < lightLength) {
-                    strip.setPixelColor(p, color);
+                    strip.setPixelColor(p, color1);
                 }
                 else {
-                    strip.setPixelColor(p, 0, 0, 0);
+                    strip.setPixelColor(p, color2);
                 }
             }
             strip.show();

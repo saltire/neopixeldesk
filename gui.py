@@ -21,13 +21,35 @@ def set_color():
     mode = ['Fade', 'Wipe', 'Marquee', 'Rainbow'].index(request.form['mode'])
     data = json.loads(request.form['data'])
 
-    print(mode, data)
+    if request.form['mode'] in ['Fade', 'Wipe']:
+        neo.write(mode,
+                  data['color1']['r'],
+                  data['color1']['g'],
+                  data['color1']['b'],
+                  data['duration'] >> 8,
+                  data['duration'] & 0xff)
 
-    if request.form['mode'] in ['Fade', 'Wipe', 'Marquee']:
-        neo.write(mode, data['color1']['r'], data['color1']['g'], data['color1']['b'])
+    if request.form['mode'] == 'Marquee':
+        neo.write(mode,
+                  data['color1']['r'],
+                  data['color1']['g'],
+                  data['color1']['b'],
+                  data['color2']['r'],
+                  data['color2']['g'],
+                  data['color2']['b'],
+                  data['length1'] >> 8,
+                  data['length1'] & 0xff,
+                  data['length2'] >> 8,
+                  data['length2'] & 0xff,
+                  data['duration'] >> 8,
+                  data['duration'] & 0xff)
 
     elif request.form['mode'] == 'Rainbow':
-        neo.write(mode)
+        neo.write(mode,
+                  data['duration'] >> 8,
+                  data['duration'] & 0xff,
+                  data['length'] >> 8,
+                  data['length'] & 0xff)
 
     return jsonify({'result': 'success'})
 
