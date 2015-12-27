@@ -25,7 +25,8 @@ void setup() {
 
     Serial.begin(9600);
 
-    colorFade(strip.Color(255, 0, 0), 1000, 20);
+    colorFade(strip.Color(255, 0, 0), 500, 20);
+    colorFade(strip.Color(0, 0, 0), 500, 20);
     // colorWipe(strip.Color(0, 255, 0), 1000, false);
     // colorMarquee(strip.Color(0, 0, 255), 5, 2, 1000, false);
     // rainbowCycle(5000, 500, false);
@@ -48,8 +49,8 @@ void loop() {
         else if (mode == MODE_MARQUEE) {
             uint32_t marqueeColor1 = readColor();
             uint32_t marqueeColor2 = readColor();
-            uint8_t marqueeLength1 = readInt16();
-            uint8_t marqueeLength2 = readInt16();
+            uint16_t marqueeLength1 = readInt16();
+            uint16_t marqueeLength2 = readInt16();
             uint16_t marqueeDuration = readInt16();
             colorMarquee(marqueeColor1, marqueeColor2, marqueeLength1, marqueeLength2,
                 marqueeDuration, true);
@@ -195,4 +196,3 @@ uint32_t wheel(uint8_t wheelPos) {
         return strip.Color(wheelPos * 3, 255 - wheelPos * 3, 0);
     }
 }
-
