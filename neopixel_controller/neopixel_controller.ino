@@ -9,6 +9,7 @@
 #define MODE_WIPE 1
 #define MODE_MARQUEE 2
 #define MODE_RAINBOW 3
+#define MODE_PULSE 4
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -59,6 +60,12 @@ void loop() {
             uint16_t rainbowDuration = readInt16();
             uint16_t rainbowLength = readInt16();
             rainbowCycle(rainbowDuration, rainbowLength, true);
+        }
+        else if (mode == MODE_PULSE) {
+            uint32_t pulseColor1 = readColor();
+            uint32_t pulseColor2 = readColor();
+            uint16_t pulseDuration = readInt16();
+            colorPulse(pulseColor1, pulseColor2, pulseDuration, 20);
         }
     }
 }
@@ -136,8 +143,7 @@ void colorWipe(uint32_t color, uint16_t duration, bool reverse) {
 }
 
 // Create a scrolling marquee of groups of alternating on and off pixels of a single color.
-void colorMarquee(uint32_t color1, uint32_t color2, uint16_t lightLength,
-    uint16_t darkLength, uint16_t duration, bool reverse) {
+void colorMarquee(uint32_t color1, uint32_t color2, uint16_t lightLength, uint16_t darkLength, uint16_t duration, bool reverse) {
     if (lightLength == 0) return;
     uint16_t length = lightLength + darkLength;
     uint16_t stepDuration = duration / length;
@@ -181,6 +187,16 @@ void rainbowCycle(uint16_t duration, uint16_t length, bool reverse) {
     }
 }
 
+// Fade alternately between two colors.
+void colorPulse(uint32_t color1, uint32_t color2, uint16_t duration, uint16_t stepDuration) {
+    while (1) {
+        colorFade(color1, duration, stepDuration);
+        if (Serial.available()) return;
+        colorFade(color2, duration, stepDuration);
+        if (Serial.available()) return;
+    }
+}
+
 // Input a hue value 0 to 255 to get a 32-bit color value.
 uint32_t wheel(uint8_t wheelPos) {
     wheelPos = 255 - wheelPos;
@@ -196,3 +212,4 @@ uint32_t wheel(uint8_t wheelPos) {
         return strip.Color(wheelPos * 3, 255 - wheelPos * 3, 0);
     }
 }
+

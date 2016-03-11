@@ -98,6 +98,11 @@ var ColorForm = React.createClass({
                     duration: 5000,
                     length: 500,
                     reverse: false
+                },
+                Pulse: {
+                    color1: new Color(),
+                    color2: new Color(),
+                    duration: 1000
                 }
             }
         };
@@ -141,10 +146,18 @@ var ColorForm = React.createClass({
                 </div>
             );
         }
+        else if (mode === 'Pulse') {
+            return (
+                <div>
+                    <ColorSelect mode='Pulse' name='color1' label='Primary Color' updateValue={this.updateValue} color={modeData.color1} />
+                    <ColorSelect mode='Pulse' name='color2' label='Secondary Color' updateValue={this.updateValue} color={modeData.color2} />
+                    <NumberRange mode='Pulse' name='duration' label='Duration (msec)' updateValue={this.updateValue} min='100' max='10000' value={modeData.duration} />
+                </div>
+            );
+        }
     },
 
     updateValue: function (mode, prop, value) {
-        console.log(arguments);
         this.setState(function (state) {
             state.modeData[mode][prop] = value;
         });

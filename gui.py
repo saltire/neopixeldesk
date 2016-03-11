@@ -18,7 +18,7 @@ def index():
 
 @app.route('/color', methods=['POST'])
 def set_color():
-    mode = ['Fade', 'Wipe', 'Marquee', 'Rainbow'].index(request.form['mode'])
+    mode = ['Fade', 'Wipe', 'Marquee', 'Rainbow', 'Pulse'].index(request.form['mode'])
     data = json.loads(request.form['data'])
 
     if request.form['mode'] in ['Fade', 'Wipe']:
@@ -50,6 +50,17 @@ def set_color():
                   data['duration'] & 0xff,
                   data['length'] >> 8,
                   data['length'] & 0xff)
+
+    elif request.form['mode'] == 'Pulse':
+        neo.write(mode,
+                  data['color1']['r'],
+                  data['color1']['g'],
+                  data['color1']['b'],
+                  data['color2']['r'],
+                  data['color2']['g'],
+                  data['color2']['b'],
+                  data['duration'] >> 8,
+                  data['duration'] & 0xff)
 
     return jsonify({'result': 'success'})
 
