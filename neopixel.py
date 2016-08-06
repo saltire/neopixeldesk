@@ -4,7 +4,7 @@ from serial import Serial
 
 
 class NeoPixel:
-    def __init__(self, port='COM7', baud=9600):
+    def __init__(self, port='COM4', baud=9600):
         self.serial = Serial()
         self.serial.setDTR(False)  # Avoid resetting Arduino on serial connection
         self.serial.port = port

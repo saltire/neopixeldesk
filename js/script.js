@@ -21,9 +21,9 @@ var ColorSelect = React.createClass({
 
     updateColor: function () {
         var newColor = new Color(
-            parseInt(this.refs.r.getDOMNode().value),
-            parseInt(this.refs.g.getDOMNode().value),
-            parseInt(this.refs.b.getDOMNode().value)
+            parseInt(ReactDOM.findDOMNode(this.refs.r).value),
+            parseInt(ReactDOM.findDOMNode(this.refs.g).value),
+            parseInt(ReactDOM.findDOMNode(this.refs.b).value)
         );
         this.props.updateValue(this.props.mode, this.props.name, newColor);
     },
@@ -54,7 +54,8 @@ var ColorSelect = React.createClass({
 
 var NumberRange = React.createClass({
     updateRange: function () {
-        this.props.updateValue(this.props.mode, this.props.name, parseInt(this.refs.range.getDOMNode().value));
+        this.props.updateValue(this.props.mode, this.props.name,
+            parseInt(ReactDOM.findDOMNode(this.refs.range).value));
     },
 
     render: function () {
@@ -208,4 +209,6 @@ var ColorForm = React.createClass({
 });
 
 
-React.render(<ColorForm action='/color' />, document.getElementById('form'));
+$(function () {
+    ReactDOM.render(<ColorForm action='/color' />, document.getElementById('form'));
+});
