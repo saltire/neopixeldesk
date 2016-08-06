@@ -1,46 +1,44 @@
 function hexColor(color) {
-    var num = color.r * 0x10000 + color.g * 0x100 + color.b;
-    var str = num.toString(16);
+    const num = color.r * 0x10000 + color.g * 0x100 + color.b;
+    const str = num.toString(16);
     return '#' + '000000'.slice(str.length) + str;
 }
 
 
-var Color = function (r, g, b) {
+const Color = function (r, g, b) {
     this.r = Number(r) || 0;
     this.g = Number(g) || 0;
     this.b = Number(b) || 0;
 };
 
 
-var ColorSelect = React.createClass({
+const ColorSelect = React.createClass({
     channels: [
         {id: 'r', label: 'Red'},
         {id: 'g', label: 'Green'},
         {id: 'b', label: 'Blue'}
     ],
 
-    updateColor: function () {
-        var newColor = new Color(
+    updateColor() {
+        this.props.updateValue(this.props.mode, this.props.name, new Color(
             parseInt(ReactDOM.findDOMNode(this.refs.r).value),
             parseInt(ReactDOM.findDOMNode(this.refs.g).value),
             parseInt(ReactDOM.findDOMNode(this.refs.b).value)
-        );
-        this.props.updateValue(this.props.mode, this.props.name, newColor);
+        ));
     },
 
-    render: function () {
-        var _ = this;
+    render() {
         return (
             <div>
                 <h3>{this.props.label}</h3>
-                {this.channels.map(function (channel) {
-                    var name = _.props.mode + '-' + _.props.name + '-' + channel.id;
+                {this.channels.map((channel) => {
+                    const name = this.props.mode + '-' + this.props.name + '-' + channel.id;
                     return (
                         <div key={name} className='row'>
                             <div className='col-sm-2 col-xs-6'><label htmlFor={name}>{channel.label}</label></div>
-                            <div className='col-sm-1 col-xs-6'>{_.props.color[channel.id]}</div>
+                            <div className='col-sm-1 col-xs-6'>{this.props.color[channel.id]}</div>
                             <div className='col-sm-9 col-xs-12'>
-                                <input type='range' min='0' max='255' id={name} value={_.props.color[channel.id]} ref={channel.id} onChange={_.updateColor} />
+                                <input type='range' min='0' max='255' id={name} value={this.props.color[channel.id]} ref={channel.id} onChange={this.updateColor} />
                             </div>
                         </div>
                     );
@@ -52,14 +50,14 @@ var ColorSelect = React.createClass({
 });
 
 
-var NumberRange = React.createClass({
-    updateRange: function () {
+const NumberRange = React.createClass({
+    updateRange() {
         this.props.updateValue(this.props.mode, this.props.name,
             parseInt(ReactDOM.findDOMNode(this.refs.range).value));
     },
 
-    render: function () {
-        var name = this.props.mode + '-' + this.props.name;
+    render() {
+        const name = this.props.mode + '-' + this.props.name;
         return (
             <div className='row'>
                 <div className='col-sm-2 col-xs-6'><label htmlFor={name}>{this.props.label}</label></div>
@@ -68,13 +66,13 @@ var NumberRange = React.createClass({
                     <input type='range' min={this.props.min} max={this.props.max} id={name} value={this.props.value} ref='range' onChange={this.updateRange} />
                 </div>
             </div>
-        )
+        );
     }
 });
 
 
-var ColorForm = React.createClass({
-    getInitialState: function () {
+const ColorForm = React.createClass({
+    getInitialState() {
         return {
             currentMode: 'Fade',
             modeData: {
@@ -109,8 +107,8 @@ var ColorForm = React.createClass({
         };
     },
 
-    getModeElement: function (mode) {
-        var modeData = this.state.modeData[mode];
+    getModeElement(mode) {
+        const modeData = this.state.modeData[mode];
 
         if (mode === 'Fade') {
             return (
@@ -158,21 +156,21 @@ var ColorForm = React.createClass({
         }
     },
 
-    updateValue: function (mode, prop, value) {
-        this.setState(function (state) {
+    updateValue(mode, prop, value) {
+        this.setState((state) => {
             state.modeData[mode][prop] = value;
         });
     },
 
-    updateMode: function (e) {
-        var mode = e.currentTarget.getElementsByTagName('input')[0].value;
-        this.setState(function (state) {
+    updateMode(e) {
+        const mode = e.currentTarget.getElementsByTagName('input')[0].value;
+        this.setState((state) => {
             state.currentMode = mode;
             return state;
         });
     },
 
-    send: function (e) {
+    send(e) {
         e.preventDefault();
 
         $.ajax({
@@ -185,19 +183,15 @@ var ColorForm = React.createClass({
         });
     },
 
-    render: function () {
-        var _ = this;
-
+    render() {
         return (
             <form ref='form' onSubmit={this.send}>
                 <div className='btn-group' data-toggle='buttons'>
-                    {Object.keys(this.state.modeData).map(function (mode, i) {
-                        return (
-                            <label key={mode} className={'btn btn-default' + (_.state.currentMode == mode ? ' active' : '')} onClick={_.updateMode}>
-                                {mode} <input type='radio' name='mode' value={mode} />
-                            </label>
-                        );
-                    })}
+                    {Object.keys(this.state.modeData).map((mode, i) => (
+                        <label key={mode} className={`btn btn-default${this.state.currentMode == mode ? ' active' : ''}`} onClick={this.updateMode}>
+                            {mode} <input type='radio' name='mode' value={mode} />
+                        </label>
+                    ))}
                 </div>
 
                 {this.getModeElement(this.state.currentMode)}
@@ -209,6 +203,4 @@ var ColorForm = React.createClass({
 });
 
 
-$(function () {
-    ReactDOM.render(<ColorForm action='/color' />, document.getElementById('form'));
-});
+$(() => ReactDOM.render(<ColorForm action='/color' />, document.getElementById('form')));
