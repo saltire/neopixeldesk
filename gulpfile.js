@@ -24,19 +24,19 @@ gulp.task('libs', () => {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('src', () => {
-    gulp.src('src/*')
+gulp.task('static', () => {
+    gulp.src('static/*')
         .pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', () => {
     gulp.watch('js/*.js', ['babel']);
-    gulp.watch('src/*', ['src']);
+    gulp.watch('static/*', ['static']);
 });
 
 gulp.task('start', () => {
     nodemon();
 });
 
-gulp.task('build', ['babel', 'libs', 'src']);
+gulp.task('build', ['babel', 'libs', 'static']);
 gulp.task('default', ['build', 'watch', 'start']);
