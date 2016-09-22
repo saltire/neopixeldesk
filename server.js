@@ -6,10 +6,11 @@ const morgan = require('morgan');
 const path = require('path');
 const SerialPort = require('serialport');
 
+const config = require('./config.json');
 const modes = require('./modes');
 
 
-const serial = new SerialPort('COM4', {
+const serial = new SerialPort(config.port, {
     baudrate: 9600,
     dtr: false
 });
