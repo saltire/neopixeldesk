@@ -1,65 +1,37 @@
 'use strict';
 
-const bodyParser = require('body-parser');
-const express = require('express');
-const morgan = require('morgan');
-const path = require('path');
 const SerialPort = require('serialport');
 
 const config = require('./config.json');
 const modes = require('./modes');
 
 
-const serial = new SerialPort(config.port, {
-    baudrate: 9600,
-    dtr: false
-});
+const Server = function () {
+    this.serial = new SerialPort(config.port, {
+        baudrate: 9600,
+        dtr: false
+    });
 
+    this.serial.on('open', () => {
+        console.log('Connected to serial port', this.serial.path);
+    });
+};
 
-const app = express();
-
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(morgan('dev'));
-
-app.use('/', express.static(path.join(__dirname, 'dist')));
-
-app.post('/color', (req, res, next) => {
-    const mode = ['Fade', 'Wipe', 'Marquee', 'Rainbow', 'Pulse'].indexOf(req.body.mode);
-    if (mode === -1) {
-        return res.status(400);
+Server.prototype.send = function (mode, data, callback) {
+    if (!(mode in modes)) {
+        return callback(new Error('Unrecognized mode.'));
     }
 
-    if (!(req.body.mode in modes)) {
-        res.jsonp({
-            success: false,
-            message: 'Unrecognized mode.'
-        });
-    }
+    const bytes = [Object.keys(modes).indexOf(mode)].concat(modes[mode](data));
 
-    const data = JSON.parse(req.body.data);
-    const bytes = [mode].concat(modes[req.body.mode](data));
-
-    serial.write(new Buffer(bytes), (err, count) => {
+    this.serial.write(new Buffer(bytes), (err) => {
         if (err) {
-            return res.jsonp({
-                success: false,
-                message: err.message
-            });
+            return callback(err);
         }
 
-        console.log('Wrote', count, 'bytes:', bytes.join(' '));
-        res.jsonp({
-            success: true,
-            message: 'Successfully sent data.'
-        });
+        console.log(`Wrote ${bytes.length} bytes:`, bytes.join(' '));
+        callback();
     });
-});
+}
 
-
-serial.on('open', () => {
-    console.log('Connected to serial port', serial.path);
-
-    const port = process.env.PORT || 5000;
-    app.listen(port);
-    console.log('Listening on HTTP port', port);
-});
+module.exports = Server;

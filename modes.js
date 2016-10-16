@@ -1,5 +1,5 @@
 module.exports = {
-    Fade: (data) => [
+    fade: (data) => [
         data.color1.r,
         data.color1.g,
         data.color1.b,
@@ -7,7 +7,7 @@ module.exports = {
         data.duration & 0xff
     ],
 
-    Wipe: (data) => [
+    wipe: (data) => [
         data.color1.r,
         data.color1.g,
         data.color1.b,
@@ -15,7 +15,7 @@ module.exports = {
         data.duration & 0xff
     ],
 
-    Marquee: (data) => [
+    marquee: (data) => [
         data.color1.r,
         data.color1.g,
         data.color1.b,
@@ -30,14 +30,14 @@ module.exports = {
         data.duration & 0xff
     ],
 
-    Rainbow: (data) => [
+    rainbow: (data) => [
         data.duration >> 8,
         data.duration & 0xff,
         data.length >> 8,
         data.length & 0xff
     ],
 
-    Pulse: (data) => [
+    pulse: (data) => [
         data.color1.r,
         data.color1.g,
         data.color1.b,
