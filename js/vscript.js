@@ -17,7 +17,7 @@ const channels = [
 ];
 
 Vue.component('color-select', {
-    props: ['mode', 'label', 'name'],
+    props: ['mode', 'name', 'label'],
     data() {
         return {
             color: new Color(0, 0, 255),
@@ -41,12 +41,12 @@ Vue.component('color-select', {
 });
 
 Vue.component('number-range', {
-    props: ['mode', 'label', 'name', 'min', 'max', 'initialValue'],
+    props: ['mode', 'name', 'label', 'min', 'max', 'initialValue'],
     data() {
         return {
             id: `${this.mode}-${this.name}`,
             value: this.initialValue
-        }
+        };
     },
     template: (
         '<div class="row">' +
@@ -55,6 +55,60 @@ Vue.component('number-range', {
             '<div class="col-sm-9 col-xs-12">' +
                 '<input type="range" v-bind:min="min" v-bind:max="max" v-bind:id="id" v-model="value">' +
             '</div>' +
+        '</div>'
+    )
+});
+
+Vue.component('module-fade', {
+    props: ['initialProps'],
+    template: (
+        '<div>' +
+            '<color-select mode="Fade" name="color1" label="Color" v-bind:initial-value="initialProps.color1"></color-select>' +
+            '<number-range mode="Fade" name="duration" label="Duration (msec)" min="100" max="10000" v-bind:initial-value="initialProps.duration"></number-range>' +
+        '</div>'
+    )
+});
+
+Vue.component('module-wipe', {
+    props: ['initialProps'],
+    template: (
+        '<div>' +
+            '<color-select mode="Wipe" name="color1" label="Color" v-bind:initial-value="initialProps.color1"></color-select>' +
+            '<number-range mode="Wipe" name="duration" label="Duration (msec)" min="100" max="10000" v-bind:initial-value="initialProps.duration"></number-range>' +
+        '</div>'
+    )
+});
+
+Vue.component('module-marquee', {
+    props: ['initialProps'],
+    template: (
+        '<div>' +
+            '<color-select mode="Marquee" name="color1" label="Primary Color" v-bind:initial-value="initialProps.color1"></color-select>' +
+            '<number-range mode="Marquee" name="length1" label="Primary Color Length" min="1" max="150" v-bind:initial-value="initialProps.length1"></number-range>' +
+            '<color-select mode="Marquee" name="color2" label="Secondary Color" v-bind:initial-value="initialProps.color2"></color-select>' +
+            '<number-range mode="Marquee" name="length2" label="Secondary Color Length" min="1" max="150" v-bind:initial-value="initialProps.length2"></number-range>' +
+            '<number-range mode="Marquee" name="duration" label="Duration (msec)" min="100" max="10000" v-bind:initial-value="initialProps.duration"></number-range>' +
+        '</div>'
+    )
+});
+
+Vue.component('module-rainbow', {
+    props: ['initialProps'],
+    template: (
+        '<div>' +
+            '<number-range mode="Rainbow" name="duration" label="Duration (msec)" min="100" max="10000" v-bind:initial-value="initialProps.duration"></number-range>' +
+            '<number-range mode="Rainbow" name="length" label="Length (pixels)" min="1" max="600" v-bind:initial-value="initialProps.length"></number-range>' +
+        '</div>'
+    )
+});
+
+Vue.component('module-pulse', {
+    props: ['initialProps'],
+    template: (
+        '<div>' +
+            '<color-select mode="Marquee" name="color1" label="Primary Color" v-bind:initial-value="initialProps.color1"></color-select>' +
+            '<color-select mode="Marquee" name="color2" label="Secondary Color" v-bind:initial-value="initialProps.color2"></color-select>' +
+            '<number-range mode="Pulse" name="duration" label="Duration (msec)" min="100" max="10000" v-bind:initial-value="initialProps.duration"></number-range>' +
         '</div>'
     )
 });

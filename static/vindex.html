@@ -11,18 +11,22 @@
 <body class='container'>
     <h1>NeoPixel Controller</h1>
     <div id='form'>
-        <div class='btn-group' data-toggle='buttons'>
-            <label v-for='(modeData, mode) in modes' :key='mode'
-                class='btn btn-default' v-bind:class='{active: currentMode == mode}'>
-                {{ mode }} <input type='radio' name='mode' v-bind:value='mode'>
-            </label>
+        <div class='btn-group'>
+            <button v-for='(modeData, mode) in modes' v-bind:key='mode'
+                class='btn btn-default' v-bind:class='{active: currentMode == mode}'
+                v-on:click='currentMode = mode'>{{ mode }}</button>
         </div>
 
-        <div v-if='currentMode == "Fade"'>
-            <color-select mode='Fade' name='color1' label='Color' color={modes.color1}></color-select>
-            <number-range mode='Fade' name='duration' label='Duration (msec)' min='100' max='10000' v-bind:initial-value='modes.Fade.duration'></number-range>
-        </div>
-        <!-- <mode v-bind:modeProps='modeProps'></mode> -->
+        <module-fade v-if='currentMode == "Fade"'
+            v-bind:initial-props='modes.Fade'></module-fade>
+        <module-wipe v-if='currentMode == "Wipe"'
+            v-bind:initial-props='modes.Wipe'></module-wipe>
+        <module-marquee v-if='currentMode == "Marquee"'
+            v-bind:initial-props='modes.Marquee'></module-marquee>
+        <module-rainbow v-if='currentMode == "Rainbow"'
+            v-bind:initial-props='modes.Rainbow'></module-rainbow>
+        <module-pulse v-if='currentMode == "Pulse"'
+            v-bind:initial-props='modes.Pulse'></module-pulse>
 
         <button class='btn'>Send</button>
     </div>
