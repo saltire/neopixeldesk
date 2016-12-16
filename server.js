@@ -12,9 +12,13 @@ const Server = function () {
         dtr: false
     });
 
-    this.serial.on('open', () => {
-        console.log('Connected to serial port', this.serial.path);
-    });
+    this.serial
+        .on('open', () => {
+            console.log('Connected to serial port', this.serial.path);
+        })
+        .on('error', (err) => {
+            console.error('Error connecting to serial port:', err.message);
+        });
 };
 
 Server.prototype.send = function (mode, data, callback) {

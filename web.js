@@ -36,8 +36,6 @@ app.post('/color', (req, res, next) => {
     });
 });
 
-server.serial.on('open', () => {
-    const port = process.env.PORT || 5000;
-    app.listen(port);
-    console.log('Listening on HTTP port', port);
-});
+const port = process.env.PORT || 5000;
+app.listen(port);
+console.log('Listening on HTTP port', port);
