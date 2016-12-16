@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+    <title>NeoPixel Controller</title>
+    <link rel='stylesheet' href='/bootstrap.min.css'>
+    <link rel='stylesheet' href='/style.css'>
+    <script src='/vue.js'></script>
+    <script src='/jquery.min.js'></script>
+    <script src='/bootstrap.min.js'></script>
+</head>
+<body class='container'>
+    <h1>NeoPixel Controller</h1>
+    <div id='form'>
+        <div class='btn-group' data-toggle='buttons'>
+            <label v-for='(modeData, mode) in modes' :key='mode'
+                class='btn btn-default' v-bind:class='{active: currentMode == mode}'>
+                {{ mode }} <input type='radio' name='mode' v-bind:value='mode'>
+            </label>
+        </div>
+
+        <div v-if='currentMode == "Fade"'>
+            <color-select mode='Fade' name='color1' label='Color' color={modes.color1}></color-select>
+            <number-range mode='Fade' name='duration' label='Duration (msec)' min='100' max='10000' v-bind:initial-value='modes.Fade.duration'></number-range>
+        </div>
+        <!-- <mode v-bind:modeProps='modeProps'></mode> -->
+
+        <button class='btn'>Send</button>
+    </div>
+    <script src='/vscript.js'></script>
+</body>
+</html>

@@ -20,7 +20,9 @@ gulp.task('libs', () => {
             'node_modules/jquery/dist/jquery.min.js',
             // Using non-minified React libs for debugging purposes.
             'node_modules/react/dist/react.js',
-            'node_modules/react-dom/dist/react-dom.js'
+            'node_modules/react-dom/dist/react-dom.js',
+            // Using non-minified Vue libs for debugging purposes.
+            'node_modules/vue/dist/vue.js',
         ])
         .pipe(gulp.dest('dist'));
 });
