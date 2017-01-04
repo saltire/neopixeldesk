@@ -2,10 +2,10 @@
   "name": "neopixeldesk",
   "version": "0.0.0",
   "description": "Controller for a NeoPixel LED strip via Arduino",
-  "main": "web.js",
+  "main": "app/web.js",
   "scripts": {
-    "cmd": "node cmd.js",
-    "start": "node web.js"
+    "cmd": "node app/cmd.js",
+    "start": "node app/web.js"
   },
   "repository": {
     "type": "git",

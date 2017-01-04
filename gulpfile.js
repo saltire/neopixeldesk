@@ -8,6 +8,7 @@ const nodemon = require('gulp-nodemon');
 gulp.task('babel', () => {
     gulp.src('js/*.js')
         .pipe(babel({presets: ['es2015', 'react']}))
+        .on('error', (err) => console.log('Error parsing with Babel:', err.message))
         .pipe(gulp.dest('dist'));
 });
 
@@ -35,7 +36,7 @@ gulp.task('watch', () => {
 });
 
 gulp.task('start', () => {
-    nodemon();
+    nodemon({watch: 'app'});
 });
 
 gulp.task('build', ['babel', 'libs', 'static']);
