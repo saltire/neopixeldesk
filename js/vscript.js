@@ -177,5 +177,16 @@ const app = new Vue({
         update(mode, name, value) {
             this.modes[mode][name] = value;
         }
-    }
+    },
+    template: (
+        '<div>' +
+            '<div class="btn-group">' +
+                '<button v-for="(modeData, mode) in modes" v-bind:key="mode" class="btn btn-default" v-bind:class="{active: currentMode == mode}" v-on:click="currentMode = mode">{{ mode }}</button>' +
+            '</div>' +
+
+            '<component v-bind:is="currentMode" v-bind:initial-props="modes[currentMode]" v-on:update="update"></component>' +
+
+            '<button class="btn" v-on:click.prevent="submit" action="/color">Send</button>' +
+        '</div>'
+    )
 });
