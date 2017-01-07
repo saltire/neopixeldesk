@@ -91,6 +91,7 @@ const app = new Vue({
             )
         },
         Wipe: {
+            extends: module,
             template: (
                 '<div>' +
                     '<color-select mode="Wipe" name="color1" label="Color" v-bind:initial-value="initialProps.color1" v-on:update="update"></color-select>' +
